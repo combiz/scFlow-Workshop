@@ -4,7 +4,7 @@
 #   ____________________________________________________________________________
 #   Initialization                                                          ####
 
-n_cores <- future::availableCores(methods = "mc.cores")
+n_cores <- future::availableCores(methods = "system")
 options(mc.cores = n_cores)
 
 ##  ............................................................................
@@ -19,8 +19,9 @@ options("scflow_species" = "human")
 options("scflow_reddimplot_pointsize" = 0.3)
 options("scflow_reddimplot_alpha" = 0.5)
 
-sce_path <- "~/Documents/workshopscflow/MS_Example_Clustered"
-ctd_folder <- "~/Documents/junk/refs/ctd"
+#sce_path <- file.path(getwd(), "Documents/workshopscflow/data/tidy/MS_Example_Clustered")
+sce_path <- file.path(getwd(), "MS_Example_Clustered")
+ctd_folder <- file.path(getwd(), "Documents/workshopscflow/refs/ctd")
 
 sce <- read_sce(sce_path)
 
@@ -37,8 +38,8 @@ sce <- map_celltypes_sce(
 
 plot_reduced_dim(
   sce,
-  feature_dim = "cluster_celltype",
-  reduced_dim = "UMAP_Liger",
+  feature_dim    = "cluster_celltype",
+  reduced_dim    = "UMAP_Liger",
   label_clusters = TRUE
 )
 
@@ -48,10 +49,12 @@ plot_reduced_dim(
 sce <- annotate_celltype_metrics(
   sce,
   unique_id_var = "manifest",
-  cluster_var = "clusters",
-  celltype_var = "cluster_celltype",
-  facet_vars = c("manifest","diagnosis","sex"),
-  metric_vars = c("pc_mito","pc_ribo","total_counts","total_features_by_counts")
+  cluster_var   = "clusters",
+  celltype_var  = "cluster_celltype",
+  facet_vars    = c("manifest","diagnosis","sex"),
+  metric_vars   = c(
+    "pc_mito","pc_ribo","total_counts","total_features_by_counts"
+    )
 )
 
 report_celltype_metrics(sce)
@@ -68,7 +71,7 @@ celltype_mappings <- read_celltype_mappings(
 
 sce <- map_custom_celltypes(
   sce,
-  mappings = celltype_mappings,
+  mappings         = celltype_mappings,
   clusters_colname = "clusters"
 )
 
@@ -79,18 +82,18 @@ sce@metadata$markers$cluster_celltype$marker_plot
 
 plot_reduced_dim_gene(
   sce,
-  gene = "PLP1",
+  gene        = "PLP1",
   reduced_dim = "UMAP_Liger",
-  size = 1
+  size        = 1
 )
 
 sce@metadata$markers$clusters$marker_plot
 
 plot_reduced_dim_gene(
   sce,
-  gene = "PLXDC2",
+  gene        = "PLXDC2",
   reduced_dim = "UMAP_Liger",
-  size = 1
+  size        = 1
 )
 
 
@@ -99,5 +102,5 @@ plot_reduced_dim_gene(
 
 write_sce(
   sce,
-  "~/Documents/workshopscflow/MS_Example_Final"
+  file.path(getwd(), "MS_Example_Final")
 )

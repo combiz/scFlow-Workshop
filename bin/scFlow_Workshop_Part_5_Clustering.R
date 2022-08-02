@@ -4,7 +4,7 @@
 #   ____________________________________________________________________________
 #   Initialization                                                          ####
 
-n_cores <- future::availableCores(methods = "mc.cores")
+n_cores <- future::availableCores(methods = "system")
 options(mc.cores = n_cores)
 
 ##  ............................................................................
@@ -19,7 +19,7 @@ library(SingleCellExperiment)
 options("scflow_reddimplot_pointsize" = 0.3)
 options("scflow_reddimplot_alpha" = 0.5)
 
-sce_path <- "~/Documents/workshopscflow/MS_Example_DimRed"
+sce_path <- file.path(getwd(), "MS_Example_DimRed")
 
 sce <- read_sce(sce_path, read_metadata = TRUE)
 
@@ -28,26 +28,26 @@ sce <- read_sce(sce_path, read_metadata = TRUE)
 
 sce <- cluster_sce(
   sce,
-  cluster_method = "leiden",
+  cluster_method   = "leiden",
   reduction_method = "UMAP_Liger",
-  res = 0.01, # Lower is more coarse
-  k = 100, # Higher is more coarse
-  louvain_iter = 1
+  res              = 0.01, # Lower is more coarse
+  k                = 100,  # Higher is more coarse
+  louvain_iter     = 1
 )
 
 plot_reduced_dim(
   sce,
-  feature_dim = "clusters",
-  reduced_dim = "UMAP_Liger",
+  feature_dim    = "clusters",
+  reduced_dim    = "UMAP_Liger",
   label_clusters = TRUE,
-  size = 0.3
+  size           = 0.3
 )
 
 plot_reduced_dim(
   sce,
-  feature_dim = "clusters",
-  reduced_dim = "UMAP_Liger",
-  size = 0.3,
+  feature_dim       = "clusters",
+  reduced_dim       = "UMAP_Liger",
+  size              = 0.3,
   highlight_feature = "4"
 )
 
@@ -57,7 +57,7 @@ plot_reduced_dim(
 sce <- annotate_integrated_sce(
   sce,
   categorical_covariates = c("manifest", "diagnosis", "sex", "seqdate"),
-  input_reduced_dim = "UMAP"
+  input_reduced_dim      = "UMAP"
 )
 
 report_integrated_sce(sce)
@@ -79,5 +79,5 @@ plot_reduced_dim(
 
 write_sce(
   sce,
-  "~/Documents/workshopscflow/MS_Example_Clustered"
+  file.path(getwd(), "MS_Example_Clustered")
 )

@@ -16,7 +16,8 @@ library(SingleCellExperiment)
 #   ____________________________________________________________________________
 #   Specify Inputs                                                          ####
 
-sce_path <- "~/Documents/workshopscflow/MS_Example_Final"
+#sce_path <- "~/Documents/workshopscflow/MS_Example_Final"
+sce_path <- file.path(getwd(), "Documents/workshopscflow/data/tidy/MS_Example_Final")
 
 sce <- read_sce(sce_path)
 
@@ -26,10 +27,10 @@ sce <- read_sce(sce_path)
 results <- model_celltype_freqs(
   sce,
   unique_id_var = "manifest",
-  celltype_var = "cluster_celltype",
+  celltype_var  = "cluster_celltype",
   dependent_var = "diagnosis",
-  ref_class = "Control",
-  var_order = c("Control", "MS")
+  ref_class     = "Control",
+  var_order     = c("Control", "MS")
 )
 
 ## ............................................................................

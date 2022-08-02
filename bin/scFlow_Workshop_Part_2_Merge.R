@@ -15,8 +15,8 @@ library(SingleCellExperiment)
 #   ____________________________________________________________________________
 #   Specify Inputs                                                          ####
 
-ensembl_mapping_file = "~/Documents/junk/src/ensembl-ids/ensembl_mappings.tsv"
-sces_folder <- "~/Documents/workshopscflow/QC"
+ensembl_path <- "~/Documents/workshopscflow/refs/ensembl_mappings.tsv"
+sces_folder <- "~/Documents/workshopscflow/data/tidy/sces_post_qc"
 
 #   ____________________________________________________________________________
 #   Merge of Post-QC Samples                                                ####
@@ -24,13 +24,13 @@ sces_folder <- "~/Documents/workshopscflow/QC"
 # Retrieve list of available SCE folders
 sce_l <- list.files(
   sces_folder,
-  full.names = TRUE,
+  full.names   = TRUE,
   include.dirs = TRUE
   )
 
 sce <- merge_sce(
   sce_l,
-  ensembl_mapping_file = ensembl_mapping_file
+  ensembl_mapping_file = ensembl_path
 )
 
 #   ____________________________________________________________________________
@@ -38,10 +38,12 @@ sce <- merge_sce(
 
 sce <- annotate_merged_sce(
   sce,
-  plot_vars = c("total_features_by_counts","total_counts","pc_mito","pc_ribo"),
+  plot_vars     = c(
+    "total_features_by_counts","total_counts","pc_mito","pc_ribo"
+    ),
   unique_id_var = "manifest",
-  facet_vars = c("seqdate", "diagnosis"),
-  outlier_vars = c("total_features_by_counts", "total_counts")
+  facet_vars    = c("seqdate", "diagnosis"),
+  outlier_vars  = c("total_features_by_counts", "total_counts")
 )
 
 report_merged_sce(sce)
@@ -54,5 +56,5 @@ sce <- sce[, sce$manifest != "honiz"]
 
 write_sce(
   sce,
-  "~/Documents/workshopscflow/MS_Example_Merged"
+  file.path(getwd(), "MS_Example_Merged")
 )
