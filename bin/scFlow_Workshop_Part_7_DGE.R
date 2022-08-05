@@ -4,7 +4,7 @@
 #   ____________________________________________________________________________
 #   Initialization                                                          ####
 
-n_cores <- future::availableCores(methods = "mc.cores")
+n_cores <- future::availableCores(methods = "system")
 options(mc.cores = n_cores)
 
 ##  ............................................................................
@@ -17,9 +17,9 @@ library(SingleCellExperiment)
 #   Specify Inputs                                                          ####
 options("scflow_species" = "human")
 
-ensembl_path <- "~/Documents/junk/src/ensembl-ids/ensembl_mappings.tsv"
+ensembl_path <- "~/Documents/workshopscflow/refs/ensembl_mappings.tsv"
 
-sce_path <- "~/Documents/workshopscflow/MS_Example_Final"
+sce_path <- file.path(getwd(), "Documents/workshopscflow/data/tidy/MS_Example_Final")
 
 sce <- read_sce(sce_path)
 
@@ -35,22 +35,22 @@ sce_subset <- sce[, sce$cluster_celltype == celltype]
 
 de_results <- perform_de(
   sce_subset,
-  de_method = "MASTZLM",
-  mast_method = "glmer",
-  min_counts = 1,
-  min_cells_pc = 0.1,
-  rescale_numerics = TRUE,
-  pseudobulk = FALSE,
-  celltype_var = "cluster_celltype",
-  sample_var = "manifest",
-  dependent_var = "diagnosis",
-  ref_class = "Control",
-  confounding_vars = c("cngeneson", "pc_mito"),
-  random_effects_var = "manifest",
-  fc_threshold = 1.1,
-  pval_cutoff = 0.05,
-  force_run = FALSE,
-  max_cores = NULL,
+  de_method            = "MASTZLM",
+  mast_method          = "glmer",
+  min_counts           = 1,
+  min_cells_pc         = 0.1,
+  rescale_numerics     = TRUE,
+  pseudobulk           = FALSE,
+  celltype_var         = "cluster_celltype",
+  sample_var           = "manifest",
+  dependent_var        = "diagnosis",
+  ref_class            = "Control",
+  confounding_vars     = c("cngeneson", "pc_mito"),
+  random_effects_var   = "manifest",
+  fc_threshold         = 1.1,
+  pval_cutoff          = 0.05,
+  force_run            = FALSE,
+  max_cores            = NULL,
   ensembl_mapping_file = ensembl_path
 )
 
@@ -66,7 +66,7 @@ report_de(
 
 write.table(
   de_results[[result]],
-  file = file.path(getwd(), paste0(result, "_DE.tsv")),
+  file  = file.path(getwd(), paste0(result, "_DE.tsv")),
   quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE
   )
 
@@ -76,19 +76,19 @@ write.table(
 p <- volcano_plot(
   de_results[[result]],
   fc_threshold = 1.189207,
-  pval_cutoff = 0.05,
-  n_label = 10
+  pval_cutoff  = 0.05,
+  n_label      = 10
   )
 p
 
 p <- plot_violin(
   sce,
-  group_var = "diagnosis",
-  subset_var = "cluster_celltype",
+  group_var    = "diagnosis",
+  subset_var   = "cluster_celltype",
   subset_group = "Oligo",
-  gene = "GRIA4",
-  var_order = c("Control", "MS"),
-  alpha = 0.2,
-  size = 0.06
+  gene         = "GRIA4",
+  var_order    = c("Control", "MS"),
+  alpha        = 0.2,
+  size         = 0.06
 )
 p
