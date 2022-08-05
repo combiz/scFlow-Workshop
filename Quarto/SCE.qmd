@@ -1,0 +1,228 @@
+---
+title: "scFlow Workshop"
+subtitle: "Worksheet: Navigating the SingleCellExperiment Object"
+date: today
+author: "Combiz Khozoie, Ph.D."
+format: 
+  html:
+    self-contained: true
+toc: true
+toc-depth: 3
+theme: flatly
+editor: visual
+---
+
+## Background
+
+The SingleCellExperiment (SCE) object stores data for single-cell/nuclei experiments.  This [Bioconductor S4 class](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) provides methods for synchronised storage and retrieval of data including gene counts/expression, transformed matrices, cellular metrics, sample metadata, and dimensionality reduction data.
+
+![](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7358058/bin/nihms-1600055-f0002.jpg){style="" fig-alt="Overview of the SingleCellExperiment class (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7358058/)" width="100%"}
+
+In this lesson, we'll learn how to navigate a SingleCellExperiment object, retrieve, append, and modify different data types, and perform other useful tasks including subsetting.
+
+## Getting Started
+
+You should already have a SingleCellExperiment object named 'sce' in your environment.  If not, load one now, e.g.
+
+```{r}
+#| label: load-packages-and-data
+#| echo: true
+#| warning: false
+#| message: false
+
+library(scFlow)
+sce_path <- "~/Documents/scFlow_Resources/MS_Example_Final"
+sce <- read_sce(sce_path)
+```
+
+Typing the name of the *sce* object will display information about the data stored.
+
+```{r}
+#| label: sce-info
+#| include: true
+
+sce
+```
+
+You can retrieve the number of genes (rows) and cells (columns) using the base R function `dim()` on the SingleCellExperiment object.  Let's try this now.
+
+```{r}
+#| label: dim-sce
+#| include: true
+
+dim(sce)
+dim(sce)[1] # the number of genes
+dim(sce)[2] # the number of cells
+```
+
+## Retrieving Data
+
+The first data type we may need to access are assays.  These typically include the raw gene expression/counts matrix, but can also include transformations of the matrix (e.g. CPM).
+
+The **SummarizedExperiment** package includes the `assayNames()` function that lists the assays attached to the *sce*.  Let's try this now.
+
+```{r}
+#| label: assay-names
+#| include: true
+
+SummarizedExperiment::assayNames(sce)
+```
+
+We should see the raw *counts* matrix.  There are several alternative functions available to access a specific assay. Here, we will access the assay by name with the `SummarizedExperiment::assay()` function, which takes the *sce* object as its first parameter and the assay name as its second parameter.
+
+```{r}
+#| label: assay-counts
+#| include: true
+#| eval: false
+
+SummarizedExperiment::assay(sce, "counts")
+```
+
+You may have noticed that the matrix class is **dgTMatrix**.  
+
+```{r}
+#| label: dgTMatrix
+#| include: true
+
+class(SummarizedExperiment::assay(sce, "counts"))
+```
+
+Tip: This is a type of sparse matrix.  We can interact with this matrix in the same way as a normal (dense) matrix, but under the hood it uses a triplet format (x, y, value) to store only non-zero data points; this is a memory efficient way of storing sparse data.  It's useful to be aware of the difference and to use sparse matrices for sparse counts data, rather than the default dense matrix, otherwise you may run out of RAM and storage space!  
+
+### Accessing column data (cell-level data)
+
+The second data type we will look at is column data.  The columns in a SingleCellExperiment assay are cells, so the column data stores data related to cells, including both sample-level (e.g. age, disease status) and cell-level (e.g. total counts, total genes) metrics.
+
+We can access the column data using the `SummarizedExperiment::colData()` function on the *sce*.  Let's try this now.
+
+```{r}
+#| label: col-data
+#| eval: false
+
+SummarizedExperiment::colData(sce)
+```
+
+The output is a *DFrame* object, akin to a standard R *data.frame* object.  
+
+```{r}
+#| label: col-data-class
+#| include: true
+
+class(SummarizedExperiment::colData(sce))
+```
+
+You can even use standard R *data.frame* syntax to retrieve and assign data to the column data by referencing only the sce object, e.g. `sce$total_counts`.  Try this now.
+
+```{r}
+#| label: col-data-retrieve
+#| include: true
+
+median(sce$total_counts)
+table(sce$cluster_celltype)
+```
+
+The full list of column data variables can be retrieved in a similar way.  
+
+```{r}
+#| label: col-data-fields
+#| include: true
+
+colnames(SummarizedExperiment::colData(sce))
+```
+
+### Accessing row data (gene-level data)
+
+Similarly to colData, we can also access and assign row (gene) level data using the `SummarizedExperiment::rowData()` function.  Try this now.
+
+```{r}
+#| label: row-data
+#| eval: false
+
+SummarizedExperiment::rowData(sce)
+```
+
+And we can similarly list the row data variables.
+
+```{r}
+#| label: row-data-fields
+#| include: true
+colnames(SummarizedExperiment::rowData(sce))
+```
+
+Unlike accessing colData variables, we need to use the `rowData()` function to access individual row data variables.  Try this now to retrieve the *gene* variable from the row data.
+
+```{r}
+#| label: row-data-retrieve
+#| include: true
+
+head(SummarizedExperiment::rowData(sce)$gene)
+```
+
+### Accessing dimensionality reduction data
+
+The third data type we may need to access are the dimensionality reduction matrices.  We can list these with the `reducedDimNames()` function from the  `SingleCellExperiment` package.
+
+```{r}
+#| label: reduced-dim-names
+#| include: true
+
+SingleCellExperiment::reducedDimNames(sce)
+```
+
+We can access and assign reduced dimension matrices from/to a *sce* using the `SingleCellExperiment::reducedDim()` function.  Try this now to retrieve the **PCA** embeddings.
+
+```{r}
+#| label: reduced-dim
+#| include: true
+
+head(SingleCellExperiment::reducedDim(sce, "PCA"))
+```
+
+### Accessing metadata
+
+The final *sce* data type we will consider in this tutorial is the **metadata** slot.  This is a list that can be accessed with `sce@metadata`.  Many functions in scFlow attach nested analytical results and plots to this metadata list, so you may want to inspect it after running certain functions.  That's all for data types today!
+
+
+## Subsetting the SingleCellExperiment object
+
+The final part of this lesson concerns subsetting.  We may want to subset the *sce* to focus on a particular cell-type or cluster, or perhaps for performance/testing reasons if we have a very large dataset.
+
+We can subset a SingleCellExperiment using standard R syntax for subsetting rows/columns (e.g. `sce[genes_idx, cells_idx]`).  The SingleCellExperiment class will automatically apply the subsetting across all of the relevant data types (e.g. assays, colData, rowData, and redDims).  
+
+### Subsetting by colData
+
+We can use colData indexing to subset the cells, for example `sce[, sce$diagnosis == "Control"]` returns only control cells. Let's try this now to subset only microglial cells.
+
+```{r}
+#| label: subset-sce
+#| include: true
+
+sce[, sce$cluster_celltype == "Micro"]
+```
+
+
+### Subsetting by rowData
+
+Similarly, we can also subset rows (genes).  We will need to access the rowData using the `SummarizedExperiment::rowData()` function as explored earlier.
+
+Let's combine both row (gene) and column (cell) subsetting to return a new *sce* object containing only protein coding genes and endothelial cells.
+
+```{r}
+#| label: subset-sce-rows-cols
+#| include: true
+#| fig-cap: "**Figure**: 2D UMAP embeddings for endothelial cells"
+
+endo_sce <- sce[SummarizedExperiment::rowData(sce)$gene_biotype == "protein_coding", sce$cluster_celltype == "Endo"]
+
+endo_sce
+
+plot_reduced_dim(
+    endo_sce,
+    feature_dim = "cluster_celltype",
+    reduced_dim = "UMAP_Liger",
+    size = 1
+)
+```
+
+## Summary
+The subsetting and data retrieval/accessing functions we've covered here are the most commonly used for working with SingleCellExperiment objects.  You can learn more about the SingleCellExperiment class in the manuscript [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7358058/) and the Bioconductor package documentation [here](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html).

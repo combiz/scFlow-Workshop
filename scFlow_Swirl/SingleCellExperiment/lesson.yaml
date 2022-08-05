@@ -1,0 +1,136 @@
+- Class: meta
+  Course: scFlow Swirl
+  Lesson: SingleCellExperiment
+  Author: Combiz Khozoie, Ph.D.
+  Type: Standard
+  Organization: Imperial College London
+  Version: 2.4.5
+
+- Class: text
+  Output: The SingleCellExperiment object stores data for single-cell/nuclei experiments.  This S4 class provides methods for storing and retrieving data including gene counts/expression, transformed data, sample metadata, and dimensionality reduction data.
+
+- Class: text
+  Output: In this lesson, we'll learn how to navigate a SingleCellExperiment object, retrieve, append, and modify different data types, and perform other useful tasks including subsetting.
+
+- Class: text
+  Output: You should already have a SingleCellExperiment object named 'sce' in your environment.  Typing the name of this object will display information about the data stored.
+
+- Class: text
+  Output: Let's look more closely at this object.  You can retrieve the number of genes (rows) and cells (columns) using the base R function dim() on the SingleCellExperiment object.  Let's try this now.
+
+- Class: cmd_question
+  Output: Retrieve the number of genes in the sce using the dim() function.
+  CorrectAnswer: dim(sce)[1]
+  AnswerTests: any_of_exprs('dim(sce)[1]')
+  Hint: Use array indexing to retrieve the first element (number of rows).
+
+- Class: cmd_question
+  Output: Next, retrieve the number of cells in the sce using the dim() function.
+  CorrectAnswer: dim(sce)[2
+  AnswerTests: any_of_exprs('dim(sce)[2]')
+  Hint: Use array indexing to retrieve the second element (number of columns).
+
+- Class: text
+  Output: The first data type we may need to access are assays.  This typically includes the raw gene expression/counts matrix, but can also include transformations of the matrix (e.g. CPM).
+
+- Class: text
+  Output: The SummarizedExperiment package includes the 'assayNames' function that lists the assays attached to the sce.  Try this now.
+
+- Class: cmd_question
+  Output: Use the SummarizedExperiment::assayNames() function to obtain a list of assay names for your sce.
+  CorrectAnswer: omnitest('SummarizedExperiment::assayNames(sce)')
+  Hint: You can load the SummarizedExperiment pacakge in using library(), or preface the function with the package namespace.
+
+- Class: text
+  Output: We should see the raw 'counts' matrix.  There are different functions available to access a specific assay. Here we will access it by name using the SummarizedExperiment::assay() function, which takes the sce object as its first argument and the assay name as its second argument.  Try this now.
+
+- Class: cmd_question
+  Output: Use the SummarizedExperiment::assay() function to retrieve the 'counts' assay in your sce.
+  CorrectAnswer: any_of_exprs('SummarizedExperiment::assay(sce, "counts")', 'assay(sce, "counts")')
+  Hint: This function requirs two parameters, the sce object and the assay name.
+
+- Class: text
+  Output: You may have noticed that the matrix class was 'dgTMatrix'.  This is a type of sparse matrix.  It's useful to be aware of the difference and to use sparse matrices for sparse counts data, otherwise you may run out of RAM and storage space!
+
+- Class: text
+  Output: The second data type we will look at is column data.  The columns in a SingleCellExperiment assay are cells, so the column data stores data related to cells, including both sample-level (e.g. age, disease status) and cell-level (e.g. total counts, total genes) metrics.
+
+- Class: text
+  Output: We can access the column data using the SummarizedExperiment::colData() function on the sce.  Let's try this now.
+
+- Class: cmd_question
+  Output: Use the SummarizedExperiment::colData() function to retrieve the column metadata for your sce.
+  CorrectAnswer: any_of_exprs('SummarizedExperiment::colData(sce)', 'colData(sce)')
+  Hint: Pass your sce as a parameter to the function.
+
+- Class: text
+  Output: The output is a DFrame object, akin to a standard R data.frame object.  You can even use standard R data.frame syntax to retrieve and assign data to the column data by referencing only the sce object, e.g. sce$total_counts.  Try this now.
+
+- Class: cmd_question
+  Output: Use standard R data.frame syntax to access then calculate the median for the total_counts variable in the sce colData.
+  CorrectAnswer: any_of_exprs('median(sce$total_counts')
+  Hint: Use standard R syntax (dataframe$column_name) to access the variable, and pass this to the median() function.
+
+- Class: cmd_question
+  Output: Try obtaining the variable names for the sce colData.
+  CorrectAnswer: any_of_exprs('colnames(SummarizedExperiment::colData(sce))', 'names(SummarizedExperiment::colData(sce))', 'colnames(colData(sce))', 'names(colData(sce))')
+  Hint: Use the base R colnames() or 'names()' function on the colData.
+
+- Class: text
+  Output: Similarly to colData, we can also access and assign row (gene) level data using the 'SummarizedExperiment::rowData()' function.  Try this now.
+
+- Class: cmd_question
+  Output: Use the SummarizedExperiment::rowData() function to retrieve the row (gene) data for your sce.
+  CorrectAnswer: any_of_exprs('SummarizedExperiment::rowData(sce)', 'rowData(sce)')
+  Hint: Pass your sce as a parameter to the function.
+
+- Class: cmd_question
+  Output: Try obtaining the variable names for the sce rowData.
+  CorrectAnswer: any_of_exprs('colnames(SummarizedExperiment::rowData(sce))', 'names(SummarizedExperiment::rowData(sce))', 'colnames(rowData(sce))', 'names(rowData(sce))')
+  Hint: Use the base R colnames() or 'names()' function on the rowData.
+
+- Class: text
+  Output: Unlike accessing colData variables, we need to use the rowData function to access individual rowData variables.  Try this now.
+
+- Class: cmd_question
+  Output: Retrieve the 'gene' variable from the rowData.
+  CorrectAnswer: any_of_exprs('SummarizedExperiment::rowData(sce)$gene', 'rowData(sce)$gene')
+  Hint: Access the rowData variable 'variable_name' using SummarizedExperiment::rowData(sce)$variable_name.
+
+- Class: text
+  Output: The third data type we may need to access are the dimensionality reduction matrices.  We can list these with the 'SingleCellExperiment::reducedDimNames()' function.
+
+- Class: cmd_question
+  Output: List the reduced dimension embeddings attached to the sce.
+  CorrectAnswer: any_of_exprs('SingleCellExperiment::reducedDimNames(sce)', 'reducedDimNames(sce)')
+  Hint: Pass the sce to the SingleCellExperiment::reducedDimNames() function.
+
+- Class: text
+  Output: We can access and assign reduced dimension matrices from/to a sce using the 'SingleCellExperiment::reducedDim()' function.  Try this now.
+
+- Class: cmd_question
+  Output: Retrieve the PCA embeddings from the sce.
+  CorrectAnswer: any_of_exprs('SingleCellExperiment::reducedDim(sce, "PCA")', 'reducedDim(sce, "PCA")')
+  Hint: Pass the sce to the SingleCellExperiment::reducedDim() function and specify the correct embedding name as the second parameter.
+
+- Class: text
+  Output: The final sce data type we will consider in this tutorial is the 'metadata' slot.  This is a list that can be accessed with 'sce@metadata'.  Many functions in scFlow attach nested analytical results and plots to this metadata list, so you may want to inspect it after running certain functions.  That's all for data types today!
+
+- Class: text
+  Output: The final part of this lesson concerns subsetting.  We may want to subset the sce to focus on a particular cell-type or cluster, or perhaps for performance/testing reasons if we have a very large dataset.
+
+- Class: text
+  Output: We can subset a SingleCellExperiment using standard R syntax for subsetting rows/columns (e.g. sce[genes_idx, cells_idx]).  The SingleCellExperiment will apply the subsetting across all of the relevant data types (e.g. assays, colData, rowData, and redDims).  For example, sce[, sce$diagnosis == "Control"] returns only control cells. Let's try this now.
+
+- Class: cmd_question
+  Output: Subset the sce for only microglia ("Micro"), as specified in the colData variable 'cluster_celltype'.
+  CorrectAnswer: any_of_exprs('sce[, sce$cluster_celltype == "Micro"]')
+  Hint: Use R indexing to subset the columns using a sce$cluster_celltype equality test for "Micro".
+
+- Class: text
+  Output: Similarly, we can also subset rows (genes).  We will need to access the rowData using the SummarizedExperiment::rowData() function as explored earlier.
+
+- Class: cmd_question
+  Output: Subset the sce columns for endothelial cells ("Endo"), as specified in the colData variable 'cluster_celltype'.  At the same time, select only genes with a 'gene_biotype' of 'protein_coding' from the rowData.
+  CorrectAnswer: any_of_exprs('sce[SummarizedExperiment::rowData(sce)$gene_biotype == "protein_coding", sce$cluster_celltype == "Endo"]', 'sce[rowData(sce)$gene_biotype == "protein_coding", sce$cluster_celltype == "Endo"]')
+  Hint: Use R indexing to subset the rows using a SummarizedExperiment::rowData(sce)$gene_biotype equality test for "protein_coding" and the columns using a sce$cluster_celltype equality test for "Endo".
